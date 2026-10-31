@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="col-md-5 mx-auto"><h3>{{ title }}</h3><p>{{ message }}</p>
+<a class="btn btn-primary" href="{% url 'login' %}">Go to login</a></div>
+{% endblock %}
