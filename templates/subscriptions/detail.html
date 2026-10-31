@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>{{ sub.number }} {% include 'subscriptions/_badge.html' with status=sub.status %}</h3>
+  <div>
+    {% for value, label in next_statuses %}
+    <form method="post" action="{% url 'subscription_status' sub.pk %}" class="d-inline">
+      {% csrf_token %}<input type="hidden" name="status" value="{{ value }}">
+      <button class="btn btn-outline-primary btn-sm">Move to {{ label }}</button>
+    </form>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mb-3"><div class="card-body">
+  <div class="row">
+    <div class="col-md-4"><b>Customer:</b> {{ sub.customer }}</div>
+    <div class="col-md-4"><b>Plan:</b> {{ sub.plan }}</div>
+    <div class="col-md-4"><b>Terms:</b> {{ sub.get_payment_terms_display }}</div>
+    <div class="col-md-4"><b>Start:</b> {{ sub.start_date }}</div>
+    <div class="col-md-4"><b>Expiry:</b> {{ sub.expiry_date }}</div>
+    <div class="col-md-4"><b>Next billing:</b> {{ sub.next_billing_date|default:"-" }}</div>
+  </div>
+</div></div>
+
+<div class="table-responsive">
+<table class="table bg-white">
+  <thead><tr><th>Product</th><th>Qty</th><th>Unit price</th><th>Tax</th><th>Amount</th><th></th></tr></thead>
+  <tbody>
+  {% for l in lines %}
+    <tr>
+      <td>{{ l.product }}{% if l.variant %} ({{ l.variant.value }}){% endif %}</td>
+      <td>{{ l.quantity }}</td><td>{{ l.unit_price }}</td><td>{{ l.tax|default:"-" }}</td><td>{{ l.amount }}</td>
+      <td>{% if can_edit %}
+        <form method="post" action="{% url 'subscription_line_delete' l.pk %}">{% csrf_token %}
+          <button class="btn btn-sm btn-outline-danger">Remove</button></form>{% endif %}</td>
+    </tr>
+  {% empty %}<tr><td colspan="6" class="text-center text-muted">No lines yet.</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th colspan="4" class="text-end">Total (before tax)</th><th>{{ sub.total }}</th><th></th></tr></tfoot>
+</table>
+</div>
+
+{% if can_edit %}
+<div class="card mb-3"><div class="card-body">
+  <h6>Add line</h6>
+  <form method="post" class="row g-2" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="col-md-3">{{ field }}
+        {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+    {% endfor %}
+    <div class="col-auto"><button class="btn btn-primary">Add</button></div>
+  </form>
+</div></div>
+{% endif %}
+
+<h6>Status history</h6>
+<ul class="list-group">
+  {% for h in history %}
+    <li class="list-group-item">{{ h.old_status|title }} → {{ h.new_status|title }}
+      <span class="text-muted small">by {{ h.changed_by|default:"system" }} on {{ h.changed_at|date:"d M Y H:i" }}</span></li>
+  {% empty %}<li class="list-group-item text-muted">No changes yet.</li>{% endfor %}
+</ul>
+{% endblock %}

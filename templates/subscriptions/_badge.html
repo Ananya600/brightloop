@@ -1,0 +1,1 @@
+<span class="badge bg-{% if status == 'active' %}success{% elif status == 'confirmed' %}info{% elif status == 'quotation' %}warning{% elif status == 'closed' %}dark{% else %}secondary{% endif %}">{{ status|title }}</span>
