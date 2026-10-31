@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from catalog.models import Customer
+from django.contrib.auth.forms import SetPasswordForm
 
 User = get_user_model()
 
@@ -49,4 +50,21 @@ class SignupForm(forms.ModelForm):
         user.set_password(self.cleaned_data['password1'])
         user.save()
         Customer.objects.create(user=user, name=self.cleaned_data['name'], email=user.email)
+        return user
+
+class StrongSetPasswordForm(SetPasswordForm):
+    def clean_new_password2(self):
+        p = super().clean_new_password2()
+        validate_strong_password(p)
+        return p
+
+
+class StaffForm(SignupForm):
+    def save(self, commit=True):
+        user = forms.ModelForm.save(self, commit=False)
+        user.username = user.email
+        user.first_name = self.cleaned_data['name']
+        user.role = 'staff'
+        user.set_password(self.cleaned_data['password1'])
+        user.save()
         return user

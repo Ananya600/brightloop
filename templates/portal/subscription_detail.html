@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>{{ sub.number }} {% include 'subscriptions/_badge.html' with status=sub.status %}</h3>
+<p class="text-muted">{{ sub.plan }} · {{ sub.start_date }} to {{ sub.expiry_date }} · next billing {{ sub.next_billing_date|default:"-" }}</p>
+<div class="table-responsive"><table class="table bg-white">
+  <thead><tr><th>Product</th><th>Qty</th><th>Unit price</th><th>Amount</th></tr></thead>
+  <tbody>{% for l in lines %}<tr><td>{{ l.product }}{% if l.variant %} ({{ l.variant.value }}){% endif %}</td><td>{{ l.quantity }}</td><td>{{ l.unit_price }}</td><td>{{ l.amount }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<h6>Invoices</h6>
+<ul class="list-group">{% for i in invoices %}<li class="list-group-item"><a href="{% url 'my_invoice' i.pk %}">{{ i.number }}</a> · {{ i.total }} · {{ i.get_status_display }}</li>
+{% empty %}<li class="list-group-item text-muted">No invoices yet.</li>{% endfor %}</ul>
+{% endblock %}

@@ -21,18 +21,21 @@
     {% if user.is_authenticated %}
     <aside class="col-md-2 bg-white border-end min-vh-100 p-3">
       <ul class="nav flex-column">
-        {% if user.role == 'admin' %}
-          <li class="nav-item"><a class="nav-link" href="/admin/">Catalog (Admin)</a></li>
-        {% endif %}
-        {% if user.role == 'admin' or user.role == 'staff' %}
-          <li class="nav-item"><a class="nav-link" href="#">Subscriptions</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Invoices</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Payments</a></li>
-        {% else %}
-          <li class="nav-item"><a class="nav-link" href="#">My Subscriptions</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">My Invoices</a></li>
-        {% endif %}
-      </ul>
+      {% if user.role == 'admin' or user.is_superuser %}
+        <li class="nav-item"><a class="nav-link" href="/admin/">Catalog (Admin)</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'staff_create' %}">Add staff</a></li>
+      {% endif %}
+
+      {% if user.role == 'admin' or user.role == 'staff' or user.is_superuser %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'subscription_list' %}">Subscriptions</a></li>   {# B edits these #}
+        <li class="nav-item"><a class="nav-link" href="{% url 'invoice_list' %}">Invoices</a></li>             {# B edits these #}
+        <li class="nav-item"><a class="nav-link" href="#">Payments</a></li>
+      {% else %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'my_subscriptions' %}">My Subscriptions</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'my_invoices' %}">My Invoices</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'my_payments' %}">My Payments</a></li>
+      {% endif %}
+    </ul>
     </aside>
     {% endif %}
     <main class="col p-4">
